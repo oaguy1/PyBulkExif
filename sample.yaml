@@ -1,0 +1,9 @@
+# Sample for my film camera
+exif:
+  Make: KODAK
+  Model: RetinaIIF
+  ISOSpeedRatings: 200
+  FocalLengthIn35mmFilm: 45
+  FocalLength:
+    - 45
+    - 1
