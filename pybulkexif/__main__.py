@@ -46,22 +46,30 @@ def main(argv: List[str]) -> None:
     """
     parser = argparse.ArgumentParser(
         prog="PyBulkExif",
-        description="A TUI Python tool to bulk edit Efix photo data",
+        description="A TUI Python tool to bulk edit Exif photo data",
         epilog="Please file all bugs on GitHub"
     )
-    parser.add_argument(
-        'images_dir',
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Read command
+    read_parser = subparsers.add_parser("read", help="Read Exif metadata and print to STDOUT")
+    read_parser.add_argument(
+        "images_dir",
+        help="Path to the directory containing the images to read Exif data from"
+    )
+
+    # Edit command
+    edit_parser = subparsers.add_parser("edit", help="Bulk edit Exif data on images")
+    edit_parser.add_argument(
+        "images_dir",
         help="Path to the directory containing the images to have their Exif data set"
     )
-    parser.add_argument(
-        '-E', '--exif_data',
+    edit_parser.add_argument(
+        "-E", "--exif_data",
+        required=True,
         help="Path to the YAML file containing the Exif data to be written",
     )
-    parser.add_argument(
-        '--read',
-        help="Read Exif metadata and print to STDOUT",
-        action="store_true"
-    )
+
     args = parser.parse_args(argv)
 
     for root, _, files in os.walk(args.images_dir):
@@ -70,13 +78,13 @@ def main(argv: List[str]) -> None:
             file_ext = file_ext.lower()
 
             if file_ext in SUPPORTED_FILE_EXT:
-                if args.read:
-                    read_exif_data(os.path.join(root, file))
-                else:
+                image_path = os.path.join(root, file)
+                if args.command == "read":
+                    read_exif_data(image_path)
+                elif args.command == "edit":
                     with open(args.exif_data) as f:
                         exif_from_yaml = yaml.safe_load(f)
-                    
-                    write_exif_data(os.path.join(root, file), exif_from_yaml)
+                    write_exif_data(image_path, exif_from_yaml)
 
 
 if __name__ == "__main__":
